@@ -1,11 +1,9 @@
-console.log('Starting...');
+require('dotenv').config();
+const request = require('postman-request');
 
-setTimeout(() => {
-  console.log('2 second timer');
-}, 2000);
+const url = `http://api.weatherstack.com/current?access_key=${process.env.WEATHERSTACK_API}&query=37.8267,-122.4233`;
 
-setTimeout(() => {
-  console.log('0 second timer');
-}, 0);
-
-console.log('Stopping...');
+request(url, (err, res, body) => {
+  const data = JSON.parse(body);
+  console.log(data.current);
+});
