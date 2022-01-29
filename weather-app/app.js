@@ -1,24 +1,23 @@
-const request = require('request');
+const geocode = require('./utils/geocode');
+const forecast = require('./utils/forecast');
 
-const weatherStackUrl =
-  'http://api.weatherstack.com/current?query=37.8267,-122.4233&units=f&access_key=3879f8facba66fdbe9165f48a5693fb8';
+const location = process.argv[2];
 
-const mapBoxUrl =
-  'https://api.mapbox.com/geocoding/v5/mapbox.places/Los%20Angeles.json?access_token=pk.eyJ1IjoiZ3JhaGFtajc4IiwiYSI6ImNreWpsMzZmbDEzaXAydm9scXRrZG5jOWsifQ.E1i6aSQkNUKZ80CytaYt0g&limit=1';
+if (location) {
+  geocode(location, (err, { latitude, longitude, location } = {}) => {
+    if (err) {
+      return console.log(err);
+    }
 
-request({ url: weatherStackUrl, json: true }, (error, response) => {
-  const weatherData = response.body.current;
-  const currentTemp = weatherData.temperature;
-  const feelsLike = weatherData.feelslike;
-  const weatherDescription = weatherData.weather_descriptions[0];
+    forecast(latitude, longitude, (err, forecastData) => {
+      if (err) {
+        return console.log(err);
+      }
 
-  console.log(
-    `${weatherDescription}. It is currently ${currentTemp} degrees out. It feels like ${feelsLike} degrees out.`
-  );
-});
-
-request({ url: mapBoxUrl, json: true }, (err, res) => {
-  const latitude = res.body.features[0].center[1];
-  const longitude = res.body.features[0].center[0];
-  console.log(latitude, longitude);
-});
+      console.log('Location:', location);
+      console.log('Forecast:', forecastData);
+    });
+  });
+} else {
+  console.log('Please add location');
+}
